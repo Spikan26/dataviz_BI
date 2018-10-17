@@ -1,0 +1,19 @@
+body {
+    padding-top: 1rem;
+}
+
+main {
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.tm_text {
+     font-family: "Helvetica Neue", Helvetica, sans-serif;
+     font-size: 10px;
+     fill: white;
+ }
+
+.axes {
+      font-family: "Georgia", Georgia, sans-serif;
+      font-size: 18px;
+  }
