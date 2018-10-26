@@ -23,7 +23,7 @@
 
 <main role="main" class="container">
 
-    <h1>OSKOUR</h1>
+    <h1>InfluenLAB</h1>
     <br>
     <div class="row" style="width:100%">    <!--    nav for categories   -->
         <div class="col-1">
@@ -36,7 +36,7 @@
             <br>
             <div>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" checked id="chek1">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -48,7 +48,7 @@
             <br>
             <div>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="chek2">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -60,7 +60,7 @@
             <br>
             <div>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="chek3">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -73,7 +73,7 @@
             <br>
             <div>
                 <label class="switch">
-                    <input type="checkbox" checked>
+                    <input type="checkbox" id="chek4">
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -84,8 +84,8 @@
             </div>
             <br>
             <div>
-                <label class="switch">
-                    <input type="checkbox" checked>
+                <label class="switch" id="chek5">
+                    <input type="checkbox" >
                     <span class="slider round"></span>
                 </label>
             </div>
@@ -97,35 +97,24 @@
     <br><br>
     <div class="row">
         <div class="col-6">
-            <h2>Nombre de Majuscule par Message</h2>
+
+            <h2>Nombre de Majuscules par Message</h2>
             <div id="bcp"></div>
         </div>
         <div class="col-6">
-            <h2>Status</h2>
+            <h2>Top des emojis les plus utilisés !</h2>
             <div id="bcs"></div>
         </div>
-        <div class="col-6">
+        <!--<div class="col-6">
             <h2>Time</h2>
             <div id="bct"></div>
         </div>
         <div class="col-6">
             <h2>Who</h2>
             <div id="bcw"></div>
-        </div>
+        </div>-->
     </div>
-    <div class="row">
-        <div class="col-6">
-            <h2>Treemap Status</h2>
-            <div id="legend_status"></div>
-            <div id="treemap_status"></div>
-        </div>
-        <div class="col-6">
-            <h2>Treemap Who</h2>
-            <div id="legend_who"></div>
-            <div id="treemap_who"></div>
-        </div>
-    </div>
-    <div class="row">
+     <div class="row">
 
     </div>
 </main>
@@ -133,6 +122,8 @@
         src="https://code.jquery.com/jquery-3.3.1.min.js"
         integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.bundle.min.js"></script>
