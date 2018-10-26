@@ -215,7 +215,10 @@ function bar_chart(element, property) {
 
     var nested_data = d3.nest()
         .key(function (d) {
-            return d[property];
+            if(d[property] == 0){
+                d[property] = 0.1;
+            }
+            return Math.ceil(d[property] / 10);
         })
         .rollup(function (d) {
             return {
@@ -227,7 +230,7 @@ function bar_chart(element, property) {
         .entries(data);
 
     nested_data = nested_data.sort(function (a, b) {
-        return d3.ascending(a.key, b.key)
+        return d3.ascending(+a.key, +b.key)
     });
 
 
@@ -242,7 +245,7 @@ function bar_chart(element, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#e74c3c", "#85c1e9", "#7d3c98", "#a04000"]);
+        .range(["#1100fe","#9ec7fe","#9ec7fe","#2f86fd"]);
 
     if (property === "heure") {
         x.domain([0, d3.max(nested_data.map(function (d) {
@@ -292,10 +295,83 @@ function bar_chart(element, property) {
     g.append("g")
         .attr("class", "axis")
         .attr("class", "axes")
-        .call(d3.axisLeft(y).ticks(null, "s"))
+        .call(d3.axisLeft(y).ticks(3))
 
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function horizontal_bar_chart(element, property) {
+    $("#" + element).html("");
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
+    var width = +svg.attr("width") - margin.left - margin.right;
+    var height = +svg.attr("height") - margin.top - margin.bottom;
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //var nested_data = [].concat(data);
+
+    nested_data = data.filter(function(d){
+       //TODO use switchtes from webpage to filter
+        return d.theme === "1";
+    });
+
+    console.log("HORIZONTAL DATA");
+    console.log(nested_data);
+
+
+    var y = d3.scaleBand()
+        .rangeRound([height, 0])
+        .paddingInner(0.1);
+
+    var x = d3.scaleLinear()
+        .rangeRound([0, width]);
+
+    var z = d3.scaleOrdinal()
+        .range(["#e74c3c","#85c1e9","#7d3c98","#a04000"]);
+
+
+
+    x.domain([0, 100]);
+
+    y.domain();
+    z.domain(nested_data.map(function (d) {
+        return d.key;
+    }));
+
+    g.selectAll(".bar")
+        .data(nested_data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", function (d) {
+            return x(d.key)
+        })
+        .attr("y", function (d) {
+            console.log("y(d.id)");
+            console.log(d.values);
+            return 20
+        })
+        .attr("height", function (d) {
+            return 20;
+        })
+        .attr("width", function (d) {
+            return 20;
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        });
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .attr("class", "axes")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("class", "axes")
+        .call(d3.axisLeft(y).ticks(null, "s"))
+}
 
 $(function () {
     console.log("READY");
@@ -311,7 +387,8 @@ $(function () {
             d.caps = +d.caps;
         });
         console.log(data);
-        //bar_chart("bcp", "theme");
+
+        bar_chart("bcp", "caps");
         horizontal_bar_chart("bcs", "emoji");
         //bar_chart("bcw", "heure");
         //treemap("status");
