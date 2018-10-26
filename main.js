@@ -1,4 +1,5 @@
 var data = undefined;
+var data_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 
 function legend(element, keys, z) {
@@ -59,15 +60,15 @@ function horizontal_bar_chart(element, property) {
     nested_data = nested_data.sort(function (a, b) {
         return d3.descending(a.value, b.value)
     });
-    console.log(nested_data);
+    // console.log(nested_data);
     //nested_data = data.filter(function(d){
     //TODO use switches from webpage to filter
     //return d.theme === "1";
     //  return d.nathan === "a";
     //});
 
-    console.log("HORIZONTAL DATA");
-    console.log(nested_data);
+    // console.log("HORIZONTAL DATA");
+    // console.log(nested_data);
     //console.log(nested_data);
 
 
@@ -110,17 +111,17 @@ function horizontal_bar_chart(element, property) {
         });
 
     bars.append("text")
-        .attr("dx" , -25)
+        .attr("dx", -25)
         .attr("dy", 19)
-        .text(function(d){
+        .text(function (d) {
             return d.key;
         })
 
     bars.append("text")
-        .attr("dx" , 260)
+        .attr("dx", 260)
         .attr("dy", 18)
-        .text(function(d){
-            return d.value+" msg";
+        .text(function (d) {
+            return d.value + " msg";
         })
 }
 
@@ -135,7 +136,7 @@ function bar_chart(element, property) {
 
     var nested_data = d3.nest()
         .key(function (d) {
-            if(d[property] == 0){
+            if (d[property] == 0) {
                 d[property] = 0.1;
             }
             return Math.ceil(d[property] / 10);
@@ -154,8 +155,6 @@ function bar_chart(element, property) {
     });
 
 
-
-
     var x = d3.scaleBand()
         .rangeRound([0, width])
         .paddingInner(0.1);
@@ -164,7 +163,7 @@ function bar_chart(element, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#1100fe","#9ec7fe","#9ec7fe","#2f86fd"]);
+        .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
     if (property === "heure") {
         x.domain([0, d3.max(nested_data.map(function (d) {
@@ -220,6 +219,39 @@ function bar_chart(element, property) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function draw_all() {
+    filter();
+    bar_chart("bcp", "caps");
+    horizontal_bar_chart("bcs", "emoji");
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function filter() {
+    themes = [];
+    if ($('[id= "gaming"]').prop("checked") === true) {
+        themes.push(1);
+    }
+    if ($('[id= "beaute"]').prop("checked") === true) {
+        themes.push(2);
+    }
+    if ($('[id= "sport"]').prop("checked") === true) {
+        themes.push(3);
+    }
+    if ($('[id= "food"]').prop("checked") === true) {
+        themes.push(4);
+    }
+    if ($('[id= "humour"]').prop("checked") === true) {
+        themes.push(5);
+    }
+
+    data = data_nofilter.filter(function (d) {
+        return themes.includes(d.theme)
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 $(function () {
     console.log("READY");
 
@@ -232,14 +264,34 @@ $(function () {
         data.forEach(function (d) {
             d.heure = +d.heure;
             d.caps = +d.caps;
+            d.theme = +d.theme;
         });
-        console.log(data);
+        data_nofilter = [].concat(data);
 
-        bar_chart("bcp", "caps");
-        horizontal_bar_chart("bcs", "emoji");
-        //bar_chart("bcw", "heure");
-        //treemap("status");
+        draw_all();
 
+        $('#gaming').click(function () {
+            draw_all();
+        })
+
+        $('#beaute').click(function () {
+            draw_all();
+        })
+
+        $('#sport').click(function () {
+            draw_all();
+        })
+
+        $('#food').click(function () {
+            draw_all();
+        })
+
+        $('#humour').click(function () {
+            draw_all();
+        })
     });
 
 });
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
