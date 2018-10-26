@@ -129,7 +129,10 @@ function bar_chart(element, property) {
 
     var nested_data = d3.nest()
         .key(function (d) {
-            return d[property];
+            if(d[property] == 0){
+                d[property] = 0.1;
+            }
+            return Math.ceil(d[property] / 10);
         })
         .rollup(function (d) {
             return {
@@ -141,7 +144,7 @@ function bar_chart(element, property) {
         .entries(data);
 
     nested_data = nested_data.sort(function (a, b) {
-        return d3.ascending(a.key, b.key)
+        return d3.ascending(+a.key, +b.key)
     });
 
 
@@ -206,9 +209,11 @@ function bar_chart(element, property) {
     g.append("g")
         .attr("class", "axis")
         .attr("class", "axes")
-        .call(d3.axisLeft(y).ticks(null, "s"))
+        .call(d3.axisLeft(y).ticks(3))
 
 }
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function horizontal_bar_chart(element, property) {
     $("#" + element).html("");
@@ -296,7 +301,7 @@ $(function () {
             d.caps = +d.caps;
         });
         console.log(data);
-        //bar_chart("bcp", "theme");
+        bar_chart("bcp", "caps");
         horizontal_bar_chart("bcs", "caps");
         //bar_chart("bcw", "heure");
         //treemap("status");
