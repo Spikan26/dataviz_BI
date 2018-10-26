@@ -159,7 +159,7 @@ function bar_chart(element, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#e74c3c","#85c1e9","#7d3c98","#a04000"]);
+        .range(["#1100fe","#9ec7fe","#9ec7fe","#2f86fd"]);
 
     if (property === "heure") {
         x.domain([0, d3.max(nested_data.map(function (d) {
