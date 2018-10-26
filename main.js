@@ -36,6 +36,8 @@ function legend(element, keys, z) {
         });
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function horizontal_bar_chart(element, property) {
     $("#" + element).html("");
     var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 300);
@@ -115,96 +117,14 @@ function horizontal_bar_chart(element, property) {
         })
 
     bars.append("text")
-        .attr("dx" , 240)
+        .attr("dx" , 260)
         .attr("dy", 18)
         .text(function(d){
             return d.value+" msg";
         })
 }
 
-function treemap(element) {
-
-    $("#treemap_" + element).html("");
-    $("#legend_" + element).html("");
-    var svg = d3.select("#treemap_" + element).append("svg").attr("width", 600).attr("height", 300);
-    var width = +svg.attr("width") - margin.left - margin.right;
-    var height = +svg.attr("height") - margin.top - margin.bottom;
-    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    if (data === undefined) {
-        return;
-    }
-
-    var color = d3.scaleOrdinal()
-        .range(["#e74c3c", "#85c1e9", "#7d3c98", "#a04000"]);
-
-    var nested_data = d3.nest()
-        .key(function (d) {
-            return d.status;
-        })
-        .key(function (d) {
-            return d.who;
-        })
-        .rollup(function (d) {
-            return d.length;
-        })
-        .entries(data);
-
-    console.log("TREEMAP DATA");
-    console.log(nested_data);
-
-    keys = nested_data.map(function (d) {
-        return d.key;
-    });
-
-    color.domain(keys);
-    legend("legend_" + element, keys, color);
-
-    var treemap = d3.treemap()
-        .size([width, height])
-        .padding(1)
-        .round(true);
-
-    var root = d3.hierarchy({values: nested_data}, function (d) {
-        return d.values;
-    })
-        .sum(function (d) {
-            return d.value;
-        })
-        .sort(function (a, b) {
-            return b.value - a.value;
-        });
-
-    treemap(root);
-
-    var nodes = g.selectAll(".tm")
-        .data(root.leaves())
-        .enter().append("g")
-        .attr('transform', function (d) {
-            return 'translate(' + [d.x0, d.y0] + ')'
-        })
-        .attr("class", "tm");
-
-    nodes.append("rect")
-        .attr("width", function (d) {
-            return d.x1 - d.x0;
-        })
-        .attr("height", function (d) {
-            return d.y1 - d.y0;
-        })
-        .attr("fill", function (d) {
-            return color(d.parent.data.key);
-        });
-
-    nodes.append("text")
-        .attr("class", "tm_text")
-        .attr('dx', 4)
-        .attr('dy', 14)
-        .text(function (d) {
-            return d.data.key + " " + d.data.value;
-        });
-
-}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function bar_chart(element, property) {
     $("#" + element).html("");
@@ -234,8 +154,7 @@ function bar_chart(element, property) {
     });
 
 
-    console.log("BARCHART DATA");
-    console.log(nested_data.value.size);
+
 
     var x = d3.scaleBand()
         .rangeRound([0, width])
@@ -245,7 +164,7 @@ function bar_chart(element, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#e74c3c", "#85c1e9", "#7d3c98", "#a04000"]);
+        .range(["#1100fe","#9ec7fe","#9ec7fe","#2f86fd"]);
 
     if (property === "heure") {
         x.domain([0, d3.max(nested_data.map(function (d) {
@@ -300,78 +219,6 @@ function bar_chart(element, property) {
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-function horizontal_bar_chart(element, property) {
-    $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
-    var width = +svg.attr("width") - margin.left - margin.right;
-    var height = +svg.attr("height") - margin.top - margin.bottom;
-    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-    //var nested_data = [].concat(data);
-
-    nested_data = data.filter(function(d){
-       //TODO use switchtes from webpage to filter
-        return d.theme === "1";
-    });
-
-    console.log("HORIZONTAL DATA");
-    console.log(nested_data);
-
-
-    var y = d3.scaleBand()
-        .rangeRound([height, 0])
-        .paddingInner(0.1);
-
-    var x = d3.scaleLinear()
-        .rangeRound([0, width]);
-
-    var z = d3.scaleOrdinal()
-        .range(["#e74c3c","#85c1e9","#7d3c98","#a04000"]);
-
-
-
-    x.domain([0, 100]);
-
-    y.domain();
-    z.domain(nested_data.map(function (d) {
-        return d.key;
-    }));
-
-    g.selectAll(".bar")
-        .data(nested_data)
-        .enter()
-        .append("rect")
-        .attr("class", "bar")
-        .attr("x", function (d) {
-            return x(d.key)
-        })
-        .attr("y", function (d) {
-            console.log("y(d.id)");
-            console.log(d.values);
-            return 20
-        })
-        .attr("height", function (d) {
-            return 20;
-        })
-        .attr("width", function (d) {
-            return 20;
-        })
-        .style("fill", function (d) {
-            return z(d.key)
-        });
-
-    g.append("g")
-        .attr("class", "axis")
-        .attr("transform", "translate(0," + height + ")")
-        .attr("class", "axes")
-        .call(d3.axisBottom(x));
-
-    g.append("g")
-        .attr("class", "axis")
-        .attr("class", "axes")
-        .call(d3.axisLeft(y).ticks(null, "s"))
-}
 
 $(function () {
     console.log("READY");
