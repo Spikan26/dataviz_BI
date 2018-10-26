@@ -133,8 +133,8 @@ function bar_chart(element, property) {
         })
         .rollup(function (d) {
             return {
-                size: d.length, total_time: d3.sum(d, function (d) {
-                    return d.time;
+                size: d.length, total_heure: d3.sum(d, function (d) {
+                    return d.heure;
                 })
             };
         })
@@ -158,7 +158,7 @@ function bar_chart(element, property) {
     var z = d3.scaleOrdinal()
         .range(["#e74c3c","#85c1e9","#7d3c98","#a04000"]);
 
-    if (property === "time") {
+    if (property === "heure") {
         x.domain([0, d3.max(nested_data.map(function (d) {
             return +d.key;
         })) + 1]);
@@ -210,22 +210,96 @@ function bar_chart(element, property) {
 
 }
 
+function horizontal_bar_chart(element, property) {
+    $("#" + element).html("");
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
+    var width = +svg.attr("width") - margin.left - margin.right;
+    var height = +svg.attr("height") - margin.top - margin.bottom;
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    //var nested_data = [].concat(data);
+
+    nested_data = data.filter(function(d){
+       //TODO use switchtes from webpage to filter
+        return d.theme === "1";
+    });
+
+    console.log("HORIZONTAL DATA");
+    console.log(nested_data);
+
+
+    var y = d3.scaleBand()
+        .rangeRound([height, 0])
+        .paddingInner(0.1);
+
+    var x = d3.scaleLinear()
+        .rangeRound([0, width]);
+
+    var z = d3.scaleOrdinal()
+        .range(["#e74c3c","#85c1e9","#7d3c98","#a04000"]);
+
+
+
+    x.domain([0, 100]);
+
+    y.domain();
+    z.domain(nested_data.map(function (d) {
+        return d.key;
+    }));
+
+    g.selectAll(".bar")
+        .data(nested_data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", function (d) {
+            return x(d.key)
+        })
+        .attr("y", function (d) {
+            console.log("y(d.id)");
+            console.log(d.values);
+            return 20
+        })
+        .attr("height", function (d) {
+            return 20;
+        })
+        .attr("width", function (d) {
+            return 20;
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        });
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .attr("class", "axes")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("class", "axes")
+        .call(d3.axisLeft(y).ticks(null, "s"))
+}
+
 $(function () {
     console.log("READY");
 
-    var URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQfeT9lPtJ5ia2XsopWVdvl98Oy7Bu6xL9SVQBEh32OXC8Qk4MKYxr2TcGSSTkAs7kAMfjF83IEGhQ-";
+    var URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGWmwy9vIxJDzGg9-DlfvXXwJhZFLSF5toB_RpNeGjUUqWO70o96yUGbrNjcQ2DlJAZrVtOugP7T3v";
     URL += "/pub?single=true&output=csv";
 
 
     d3.csv(URL, function (d) {
         data = d;
         data.forEach(function (d) {
-            d.time = +d.time;
+            d.heure = +d.heure;
+            d.caps = +d.caps;
         });
-        bar_chart("bcp", "priority");
-        bar_chart("bcs", "status");
-        bar_chart("bcw", "who");
-        treemap("status");
+        console.log(data);
+        //bar_chart("bcp", "theme");
+        horizontal_bar_chart("bcs", "caps");
+        //bar_chart("bcw", "heure");
+        //treemap("status");
 
     });
 
