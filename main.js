@@ -224,7 +224,7 @@ function no_theme(element) {
     var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
 
     svg.append("text")
-        .attr("x", 20)
+        .attr("x", 5)
         .attr("y", 150)
         .text("Sélectionnez un thème pour commencer");
 
