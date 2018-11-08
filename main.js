@@ -1,7 +1,8 @@
-var emoji_nofilter = undefined;
-var words_nofilter = undefined;
+var emoji_data_nofilter = undefined;
+var hashtag_data_nofilter = undefined;
+var words_data_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
-var loaded = [false, true, true, true, true, true];
+var loaded = [false, false, false, false, false, false];
 //
 function legend(element, keys, z) {
     var legendRectSize = 15;
@@ -42,7 +43,7 @@ function legend(element, keys, z) {
 
 function horizontal_bar_chart(element, data, property) {
     $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320);
+    var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320).attr("x", -50);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -101,7 +102,7 @@ function horizontal_bar_chart(element, data, property) {
             return 25;
         })
         .attr("width", function (d) {
-            return (width - 40) * (d.value / max);
+            return (width - 70) * (d.value / max);
         })
         .style("fill", function (d) {
             return z(d.key)
@@ -116,7 +117,7 @@ function horizontal_bar_chart(element, data, property) {
 
     bars.append("text")
         .attr("dx", function (d) {
-                return (width - 40) * (d.value / max) + 20;
+                return (width - 70) * (d.value / max) + 14;
             }
         )
         .attr("dy", 18)
@@ -129,7 +130,7 @@ function horizontal_bar_chart(element, data, property) {
 
 function bar_chart(element, property) {
     $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 320);
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 320).attr("x", -50);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -235,17 +236,21 @@ function no_theme(element) {
 
 function draw_all() {
     emoji_data = filter(emoji_data_nofilter);
+    hashtag_data = filter(hashtag_data_nofilter);
+    words_data = filter(words_data_nofilter);
 
     if (themes.length == 0) {
         console.log("oops, nothing selected");
-        no_theme("bcp");
-        no_theme("bcs");
-        no_theme("bcm");
-        no_theme("bch");
+        no_theme("bc_caps");
+        no_theme("bc_emoji");
+        no_theme("bc_words");
+        no_theme("bc_hashtags");
     } else {
         console.log(themes);
-        bar_chart("bcp", "caps");
-        horizontal_bar_chart("bcs", emoji_data, "emoji");
+        bar_chart("bc_caps", "caps");
+        horizontal_bar_chart("bc_emoji", emoji_data, "emoji");
+        horizontal_bar_chart("bc_hashtags", hashtag_data, "hashtag");
+        horizontal_bar_chart("bc_words", words_data, "word");
     }
 
 }
@@ -279,7 +284,7 @@ function filter(data_nofilter) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function check_loaded() {
-    if (loaded[0] == true && loaded[1] == true && loaded[2] == true && loaded[3] == true && loaded[4] == true && loaded[5] == true) {
+    if (loaded[0] == true && loaded[1] == true && loaded[2] == true) {
         draw_all();
         $('#gaming').click(function () {
             draw_all();
@@ -309,11 +314,13 @@ function check_loaded() {
 $(function () {
     console.log("READY");
 
-    var URLMOT = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGWmwy9vIxJDzGg9-DlfvXXwJhZFLSF5toB_RpNeGjUUqWO70o96yUGbrNjcQ2DlJAZrVtOugP7T3v";
-    URLMOT += "/pub?single=true&output=csv";
+    var CSV_emoji = "emojis_freq.csv";
+    var CSV_tag = "hashtags_freq.csv";
+    var CSV_word = "words_freq.csv";
 
 
-    d3.csv(URLMOT, function (d) {
+
+    d3.csv(CSV_emoji, function (d) {
         data = d;
         data.forEach(function (d) {
             d.nombre = +d.nombre;
@@ -321,6 +328,26 @@ $(function () {
         });
         emoji_data_nofilter = [].concat(data);
         loaded[0] = true;
+    });
+
+    d3.csv(CSV_tag, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.theme = +d.theme;
+        });
+        hashtag_data_nofilter = [].concat(data);
+        loaded[1] = true;
+    });
+
+    d3.csv(CSV_word, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.theme = +d.theme;
+        });
+        words_data_nofilter = [].concat(data);
+        loaded[2] = true;
     });
 
     setTimeout(check_loaded, 500);
