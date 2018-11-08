@@ -1,5 +1,6 @@
 var data = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
+var data_nofilter = undefined;
 
 function legend(element, keys, z) {
     var legendRectSize = 15;
@@ -233,6 +234,7 @@ $(function () {
             d.heure = +d.heure;
             d.caps = +d.caps;
         });
+        data_nofilter = [].concat(data);
         console.log(data);
 
         bar_chart("bcp", "caps");
@@ -241,5 +243,22 @@ $(function () {
         //treemap("status");
 
     });
+});
+///////////////////////////////////////////////////////////////////////////////////////////
+function filter(){
+    if ($('[id= "gaming"]').is(':checked')){
+        console.log('gaming')
+    }
+}
+
+$("#gaming").click(function () {
+
+    filter()
+
+});
+
+$("#chek2").click(function () {
+
+    filter()
 
 });
