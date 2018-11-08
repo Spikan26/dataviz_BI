@@ -94,7 +94,7 @@ function horizontal_bar_chart(element, data, property) {
         return d.key;
     }));
 
-    var bars = g.selectAll(".gbar") attr("transform", function (d, i) {
+    var bars = g.selectAll(".gbar").attr("transform", function (d, i) {
             return "translate(0," + 30 * i + ")";
         });
 
@@ -386,7 +386,7 @@ function check_loaded() {
         $('#gaming').click(function () {
             draw_all();
         })
-    });
+
 
     //d3.csv(URL, function (d) {
        // data = d;
