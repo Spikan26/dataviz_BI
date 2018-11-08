@@ -2,7 +2,7 @@ var emoji_nofilter = undefined;
 var words_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var loaded = [false, true, true, true, true, true];
-
+//
 function legend(element, keys, z) {
     var legendRectSize = 15;
     var svg = d3.select('#' + element).append('svg')
