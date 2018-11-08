@@ -219,10 +219,32 @@ function bar_chart(element, property) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+function no_theme(element) {
+    $("#" + element).html("");
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
+
+    svg.append("text")
+        .attr("x", 5)
+        .attr("y", 150)
+        .text("Sélectionnez un thème pour commencer");
+
+}
+// <text x="20" y="20" font-family="sans-serif" font-size="20px" fill="red">Hello!</text>
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function draw_all() {
     filter();
-    bar_chart("bcp", "caps");
-    horizontal_bar_chart("bcs", "emoji");
+    if (themes.length == 0){
+        console.log("oops, nothing selected");
+        no_theme("bcp");
+        no_theme("bcs")
+    } else {
+        console.log(themes)
+        bar_chart("bcp", "caps");
+        horizontal_bar_chart("bcs", "emoji");
+    }
+
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
