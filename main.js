@@ -1,6 +1,9 @@
-var emoji_data_nofilter = undefined;
-var hashtag_data_nofilter = undefined;
-var words_data_nofilter = undefined;
+var emoji_nofilter = undefined;
+var hashtag_nofilter = undefined;
+var words_nofilter = undefined;
+var caps_nofilter = undefined;
+var nbtag_nofilter = undefined;
+var hours_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var loaded = [false, false, false, false, false, false];
 //
@@ -48,7 +51,6 @@ function horizontal_bar_chart(element, data, property) {
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    console.log("Horizontal BC");
 
     nested_data = d3.nest()
         .key(function (d) {
@@ -65,7 +67,6 @@ function horizontal_bar_chart(element, data, property) {
         return d3.descending(a.value, b.value)
     });
 
-    console.log(nested_data);
     var max = d3.max(nested_data, function (d) {
         return d.value;
     });
@@ -128,32 +129,31 @@ function horizontal_bar_chart(element, data, property) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function bar_chart(element, property) {
+function bar_chart(element, widthchart, data, property) {
     $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 320).attr("x", -50);
+    var svg = d3.select("#" + element).append("svg").attr("width", widthchart).attr("height", 320);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var nested_data = d3.nest()
+    console.log("BAR CHART");
+
+    nested_data = d3.nest()
         .key(function (d) {
-            if (d[property] == 0) {
-                d[property] = 0.1;
-            }
-            return Math.ceil(d[property] / 10);
+            return d[property];
         })
         .rollup(function (d) {
-            return {
-                size: d.length, total_heure: d3.sum(d, function (d) {
-                    return d.heure;
-                })
-            };
+            return d3.sum(d, function (e) {
+                return e.nombre;
+            })
         })
         .entries(data);
 
-    nested_data = nested_data.sort(function (a, b) {
+    nested_data.sort(function (a, b) {
         return d3.ascending(+a.key, +b.key)
     });
+
+    console.log(nested_data);
 
 
     var x = d3.scaleBand()
@@ -166,22 +166,18 @@ function bar_chart(element, property) {
     var z = d3.scaleOrdinal()
         .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
-    if (property === "heure") {
-        x.domain([0, d3.max(nested_data.map(function (d) {
-            return +d.key;
-        })) + 1]);
-    } else {
+
         x.domain(nested_data.map(function (d) {
-            return d.key;
+            return +d.key;
         }));
 
-    }
+
 
     y.domain([0, d3.max(nested_data, function (d) {
-        return d.value.size;
+        return +d.value;
     })]);
     z.domain(nested_data.map(function (d) {
-        return d.key;
+        return +d.key;
     }));
 
     g.selectAll(".bar")
@@ -193,10 +189,10 @@ function bar_chart(element, property) {
             return x(d.key)
         })
         .attr("y", function (d) {
-            return y(d.value.size)
+            return y(d.value)
         })
         .attr("height", function (d) {
-            return height - y(d.value.size);
+            return height - y(d.value);
         })
         .attr("width", function (d) {
             return x.bandwidth();
@@ -238,6 +234,9 @@ function draw_all() {
     emoji_data = filter(emoji_data_nofilter);
     hashtag_data = filter(hashtag_data_nofilter);
     words_data = filter(words_data_nofilter);
+    caps_data = filter(caps_data_nofilter);
+    //nbtag_data = filter(nbtag_data_nofilter);
+    hours_data = filter(hours_data_nofilter);
 
     if (themes.length == 0) {
         console.log("oops, nothing selected");
@@ -245,9 +244,12 @@ function draw_all() {
         no_theme("bc_emoji");
         no_theme("bc_words");
         no_theme("bc_hashtags");
+        no_theme("bc_time");
+
     } else {
         console.log(themes);
-        bar_chart("bc_caps", "caps");
+        bar_chart("bc_caps", 550, caps_data, "percent");
+        bar_chart("bc_time", 1100, hours_data, "heure");
         horizontal_bar_chart("bc_emoji", emoji_data, "emoji");
         horizontal_bar_chart("bc_hashtags", hashtag_data, "hashtag");
         horizontal_bar_chart("bc_words", words_data, "word");
@@ -284,7 +286,7 @@ function filter(data_nofilter) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function check_loaded() {
-    if (loaded[0] == true && loaded[1] == true && loaded[2] == true) {
+    if (loaded[0] == true && loaded[1] == true && loaded[2] == true && loaded[3] == true && loaded[5] == true) {
         draw_all();
         $('#gaming').click(function () {
             draw_all();
@@ -317,6 +319,9 @@ $(function () {
     var CSV_emoji = "emojis_freq.csv";
     var CSV_tag = "hashtags_freq.csv";
     var CSV_word = "words_freq.csv";
+    var CSV_caps = "caps_distribution.csv";
+    //var CSV_nbtag = "hashtag_count.csv";
+    var CSV_hours = "hours.csv";
 
 
 
@@ -348,6 +353,39 @@ $(function () {
         });
         words_data_nofilter = [].concat(data);
         loaded[2] = true;
+    });
+
+    d3.csv(CSV_caps, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.percent = +d.percent;
+            d.theme = +d.theme;
+        });
+        caps_data_nofilter = [].concat(data);
+        loaded[3] = true;
+    });
+/*
+    d3.csv(CSV_nbtag, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.nbtag = +d.nbtag;
+            d.theme = +d.theme;
+        });
+        hashtag_data_nofilter = [].concat(data);
+        loaded[4] = true;
+    });
+*/
+    d3.csv(CSV_hours, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.heure = +d.heure;
+            d.theme = +d.theme;
+        });
+        hours_data_nofilter = [].concat(data);
+        loaded[5] = true;
     });
 
     setTimeout(check_loaded, 500);
