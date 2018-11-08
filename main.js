@@ -40,7 +40,9 @@ function legend(element, keys, z) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 function horizontal_bar_chart(element, data, property) {
+
     $("#" + element).html("");
     var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320);
     var width = +svg.attr("width") - margin.left - margin.right;
@@ -49,20 +51,25 @@ function horizontal_bar_chart(element, data, property) {
 
     console.log("Horizontal BC");
 
+
     nested_data = d3.nest()
+
         .key(function (d) {
-            return d[property];
+            return d[data];
         })
+
         .rollup(function (d) {
             return d3.sum(d, function (e) {
                 return e.nombre;
             })
+
         })
         .entries(data);
 
     nested_data.sort(function (a, b) {
         return d3.descending(a.value, b.value)
     });
+
 
     console.log(nested_data);
     var max = d3.max(nested_data, function (d) {
@@ -87,11 +94,7 @@ function horizontal_bar_chart(element, data, property) {
         return d.key;
     }));
 
-    var bars = g.selectAll(".gbar")
-        .data(nested_data)
-        .enter()
-        .append("g")
-        .attr("transform", function (d, i) {
+    var bars = g.selectAll(".gbar") attr("transform", function (d, i) {
             return "translate(0," + 30 * i + ")";
         });
 
@@ -130,6 +133,99 @@ function horizontal_bar_chart(element, data, property) {
 function bar_chart(element, property) {
     $("#" + element).html("");
     var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 320);
+    var width = +svg.attr("width") - margin.left - margin.right;
+    var height = +svg.attr("height") - margin.top - margin.bottom;
+    var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var nested_data = d3.nest()
+        .key(function (d) {
+            if (d[property] == 0) {
+                d[property] = 0.1;
+            }
+            return Math.ceil(d[property] / 10);
+        })
+
+        .rollup(function (d) {
+            return {
+                size: d.length, total_heure: d3.sum(d, function (d) {
+                    return d.heure;
+                })
+            };
+        })
+        .entries(data);
+
+    nested_data = nested_data.sort(function (a, b) {
+        return d3.ascending(+a.key, +b.key)
+    });
+
+
+    var x = d3.scaleBand()
+        .rangeRound([0, width])
+        .paddingInner(0.1);
+
+    var y = d3.scaleLinear()
+        .rangeRound([height, 0]);
+
+    var z = d3.scaleOrdinal()
+        .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
+
+    if (property === "heure") {
+        x.domain([0, d3.max(nested_data.map(function (d) {
+            return +d.key;
+        })) + 1]);
+    } else {
+        x.domain(nested_data.map(function (d) {
+            return d.key;
+        }));
+
+    }
+
+    y.domain([0, d3.max(nested_data, function (d) {
+        return d.value.size;
+    })]);
+    z.domain(nested_data.map(function (d) {
+        return d.key;
+    }));
+
+    g.selectAll(".bar")
+        .data(nested_data)
+        .enter()
+        .append("rect")
+        .attr("class", "bar")
+        .attr("x", function (d) {
+            return x(d.key)
+        })
+        .attr("y", function (d) {
+            return y(d.value.size)
+        })
+        .attr("height", function (d) {
+            return height - y(d.value.size);
+        })
+        .attr("width", function (d) {
+            return x.bandwidth();
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        });
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("transform", "translate(0," + height + ")")
+        .attr("class", "axes")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis")
+        .attr("class", "axes")
+        .call(d3.axisLeft(y).ticks(3))
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function bar_chart_heure(element, property) {
+    $("#" + element).html("");
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -240,12 +336,16 @@ function draw_all() {
         console.log("oops, nothing selected");
         no_theme("bcp");
         no_theme("bcs");
+
         no_theme("bcm");
         no_theme("bch");
+
     } else {
         console.log(themes);
         bar_chart("bcp", "caps");
+
         horizontal_bar_chart("bcs", emoji_data, "emoji");
+
     }
 
 }
@@ -278,24 +378,28 @@ function filter(data_nofilter) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
 function check_loaded() {
     if (loaded[0] == true && loaded[1] == true && loaded[2] == true && loaded[3] == true && loaded[4] == true && loaded[5] == true) {
         draw_all();
+
         $('#gaming').click(function () {
             draw_all();
         })
+    });
 
-        $('#beaute').click(function () {
-            draw_all();
-        })
+    //d3.csv(URL, function (d) {
+       // data = d;
+        //data.forEach(function (d) {
+          //  d.heure = +d.heure;
+            //d.caps = +d.caps;
+            //d.theme = +d.theme;
+        //});
+        //data_nofilter = [].concat(data);
 
-        $('#sport').click(function () {
-            draw_all();
-        })
+       // draw_all();
 
-        $('#food').click(function () {
-            draw_all();
-        })
+
 
         $('#humour').click(function () {
             draw_all();
@@ -322,6 +426,7 @@ $(function () {
         emoji_data_nofilter = [].concat(data);
         loaded[0] = true;
     });
+
 
     setTimeout(check_loaded, 500);
 
