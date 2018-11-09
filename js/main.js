@@ -51,6 +51,7 @@ function horizontal_bar_chart(element, data, property) {
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
 
     nested_data = d3.nest()
         .key(function (d) {
@@ -95,7 +96,16 @@ function horizontal_bar_chart(element, data, property) {
         .append("g")
         .attr("transform", function (d, i) {
             return "translate(0," + 30 * i + ")";
-        });
+        })
+        .on("mouseover", function(d){
+            tooltip
+                .style("left", d3.event.pageX + 50 + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("display", "inline-block")
+                .html((d.key) + "<br>" + (d.value) + " msg");
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");});
+
 
     bars.append("rect")
         .attr("class", "bar")
@@ -110,7 +120,7 @@ function horizontal_bar_chart(element, data, property) {
         });
 
     bars.append("text")
-        .attr("dx", -25)
+        .attr("dx", 10)
         .attr("dy", 19)
         .text(function (d) {
             return d.key;
@@ -136,7 +146,8 @@ function bar_chart(element, widthchart, data, property) {
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    console.log("BAR CHART");
+    var tooltip = d3.select("body").append("div").attr("class", "toolTip");
+
 
     nested_data = d3.nest()
         .key(function (d) {
@@ -199,7 +210,16 @@ function bar_chart(element, widthchart, data, property) {
         })
         .style("fill", function (d) {
             return z(d.key)
-        });
+        })
+
+        .on("mouseover", function(d){
+        tooltip
+            .style("left", d3.event.pageX + 50 + "px")
+            .style("top", d3.event.pageY + "px")
+            .style("display", "inline-block")
+            .html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");});
 
     g.append("g")
         .attr("class", "axis")
