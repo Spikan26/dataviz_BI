@@ -45,6 +45,9 @@ function legend(element, keys, z) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function horizontal_bar_chart(element, data, property) {
+
+
+
     $("#" + element).html("");
     var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320).attr("x", -50);
     var width = +svg.attr("width") - margin.left - margin.right;
@@ -77,13 +80,14 @@ function horizontal_bar_chart(element, data, property) {
         .paddingInner(0.1);
 
     var x = d3.scaleLinear()
+        .domain(d3.range(data.length))
         .rangeRound([0, width]);
 
     var z = d3.scaleOrdinal()
-        .range(["#e7173d", "#e76131", "#e7a534", "#f9e259", "#58ffb6", "#92fff7", "#de72ff"]);
+        .range(["#e7173d", "#e76131", "#e7a534", "#f9e259", "#58ffb6", "#1935ff", "#b710ff"]);
 
 
-    x.domain([0, 150]);
+    x.domain([0, data.length]);
 
     z.domain();
     y.domain(nested_data.map(function (d) {
@@ -102,23 +106,35 @@ function horizontal_bar_chart(element, data, property) {
                 .style("left", d3.event.pageX + 50 + "px")
                 .style("top", d3.event.pageY + "px")
                 .style("display", "inline-block")
-                .html((d.key) + "<br>" + (d.value) + " msg");
+                .html((d.value) + " msg");
         })
         .on("mouseout", function(d){ tooltip.style("display", "none");});
 
 
-    bars.append("rect")
+    var bars_rect = bars.append("rect")
         .attr("class", "bar")
+
         .attr("rx", 6)
         .attr("ry", 6)
+        .attr("width", 0)
         .attr("height", function (d) {
             return 25;
         })
         .attr("width", function (d) {
-            return (width - 70) * (d.value / max);
+            return 0;
         })
         .style("fill", function (d) {
             return z(d.key)
+        });
+
+    bars_rect .transition()
+        .ease(d3.easeBounceOut)
+        .delay(function(d, i) {
+            return i * 100;
+        })
+        .duration(1500)
+        .attr("width", function (d) {
+            return (width - 70) * (d.value / max);
         });
 
     bars.append("text")
@@ -168,12 +184,12 @@ function bar_chart(element, widthchart, data, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#0000ff", "#0092fd", "#9ec7fe", "#c9fef6"]);
+        .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
 
-        x.domain(nested_data.map(function (d) {
-            return +d.key;
-        }));
+    x.domain(nested_data.map(function (d) {
+        return +d.key;
+    }));
 
 
 
@@ -184,19 +200,49 @@ function bar_chart(element, widthchart, data, property) {
         return +d.key;
     }));
 
-    g.selectAll(".bar")
+    var bars = g.selectAll(".bar")
         .data(nested_data)
         .enter()
         .append("rect")
         .attr("class", "bar")
         .attr("rx", 6)
         .attr("ry", 6)
+        .attr("height", function (d) {
+            return 0;
+        })
+        .attr("width", function (d) {
+            return 22;
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        })
         .attr("x", function (d) {
             return x(d.key)
         })
         .attr("y", function (d) {
             return y(d.value)
         })
+        .on("mouseover", function(d){
+            tooltip
+                .style("left", d3.event.pageX + 50 + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("display", "inline-block");
+            if (property == "percent"){
+                tooltip.html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
+            } else {
+                tooltip.html((d.key) + "h<br>" + (d.value) + " msg");
+            }
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");})
+
+
+
+    bars.transition()
+        .delay(function(d, i) {
+            return i * 100;
+        })
+        .duration(1000)
+        .ease(d3.easeBounceOut)
         .attr("height", function (d) {
             return height - y(d.value);
         })
@@ -204,32 +250,10 @@ function bar_chart(element, widthchart, data, property) {
             return x.bandwidth();
         })
         .style("fill", function (d) {
-            var val = (+d.value / d3.max(nested_data, function (d) {
-                return +d.value;
-            })) * 100;
-
-            if (val >= 75){
-                return z(0)
-            }
-            if(val >= 50) {
-                return z(1)
-            }
-            if(val >= 25) {
-                return z(2)
-            }
-            if (25 > val){
-                return z(3)
-            }
+            return z(d.key)
         })
 
-        .on("mouseover", function(d){
-            tooltip
-            .style("left", d3.event.pageX + 50 + "px")
-            .style("top", d3.event.pageY + "px")
-            .style("display", "inline-block")
-            .html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
-        })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});
+
 
     g.append("g")
         .attr("class", "axis")
@@ -343,6 +367,44 @@ function check_loaded() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function generate_tweet() {
+    var rng_emoji_cpt = d3.randomNormal(2, 1);
+    var rng_emoji = d3.randomUniform(0, 10);
+    var rng_hashtag_cpt = d3.randomNormal(3, 1);
+    var rng_hashtag = d3.randomUniform(0, 10);
+    var rng_caps = d3.randomUniform(0, 1);
+
+    tweet = $("#gen_tweet").val();
+
+    ctw = "";
+    for (var i = 0; i < tweet.length; i++) {
+        c = tweet.charAt(i);
+        if (rng_caps() > 0.65) {
+            c = c.toUpperCase();
+        }
+        ctw += c;
+
+    }
+    tweet = ctw;
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = emoji_data[Math.floor(rng_emoji())].emoji + tweet;
+    }
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = tweet + emoji_data[Math.floor(rng_emoji())].emoji;
+    }
+    tweet = tweet + "<br/>";
+
+    for (var i = 0; i < Math.floor(rng_hashtag_cpt()); i++) {
+        tweet = tweet + hashtag_data[Math.floor(rng_hashtag())].hashtag;
+    }
+
+    return tweet;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////s
+
 $(function () {
     console.log("READY");
 
@@ -400,18 +462,18 @@ $(function () {
         caps_data_nofilter = [].concat(data);
         loaded[3] = true;
     });
-/*
-    d3.csv(CSV_nbtag, function (d) {
-        data = d;
-        data.forEach(function (d) {
-            d.nombre = +d.nombre;
-            d.nbtag = +d.nbtag;
-            d.theme = +d.theme;
+    /*
+        d3.csv(CSV_nbtag, function (d) {
+            data = d;
+            data.forEach(function (d) {
+                d.nombre = +d.nombre;
+                d.nbtag = +d.nbtag;
+                d.theme = +d.theme;
+            });
+            hashtag_data_nofilter = [].concat(data);
+            loaded[4] = true;
         });
-        hashtag_data_nofilter = [].concat(data);
-        loaded[4] = true;
-    });
-*/
+    */
     d3.csv(CSV_hours, function (d) {
         data = d;
         data.forEach(function (d) {
@@ -425,8 +487,16 @@ $(function () {
 
     setTimeout(check_loaded, 500);
 
+    $('#submit_gen').click(function (e) {
+
+        console.log("GENERATE");
+        var tw = generate_tweet();
+        $("#generated_result").html(tw);
+
+    });
+
+
 
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
