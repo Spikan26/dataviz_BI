@@ -5,8 +5,9 @@ var caps_nofilter = undefined;
 var nbtag_nofilter = undefined;
 var hours_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
+
 var loaded = [false, false, false, false, false, false];
-//
+
 function legend(element, keys, z) {
     var legendRectSize = 15;
     var svg = d3.select('#' + element).append('svg')
@@ -331,9 +332,11 @@ $(function () {
             d.nombre = +d.nombre;
             d.theme = +d.theme;
         });
+
         emoji_data_nofilter = [].concat(data);
         loaded[0] = true;
     });
+
 
     d3.csv(CSV_tag, function (d) {
         data = d;
@@ -365,6 +368,7 @@ $(function () {
         caps_data_nofilter = [].concat(data);
         loaded[3] = true;
     });
+
 /*
     d3.csv(CSV_nbtag, function (d) {
         data = d;
@@ -393,5 +397,3 @@ $(function () {
 
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
