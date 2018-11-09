@@ -4,7 +4,7 @@ var words_nofilter = undefined;
 var caps_nofilter = undefined;
 var nbtag_nofilter = undefined;
 var hours_nofilter = undefined;
-var margin = {top: 20, right: 20, bottom: 30, left: 40};
+var margin = {top: 20, right: 20, bottom: 30, left: 60};
 var loaded = [false, false, false, false, false, false];
 //
 function legend(element, keys, z) {
@@ -80,7 +80,7 @@ function horizontal_bar_chart(element, data, property) {
         .rangeRound([0, width]);
 
     var z = d3.scaleOrdinal()
-        .range(["#e7173d", "#e76131", "#e7a534", "#f9e259", "#58ffb6", "#1935ff", "#b710ff"]);
+        .range(["#e7173d", "#e76131", "#e7a534", "#f9e259", "#58ffb6", "#92fff7", "#de72ff"]);
 
 
     x.domain([0, 150]);
@@ -168,7 +168,7 @@ function bar_chart(element, widthchart, data, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
+        .range(["#0000ff", "#0092fd", "#9ec7fe", "#c9fef6"]);
 
 
         x.domain(nested_data.map(function (d) {
@@ -204,11 +204,26 @@ function bar_chart(element, widthchart, data, property) {
             return x.bandwidth();
         })
         .style("fill", function (d) {
-            return z(d.key)
+            var val = (+d.value / d3.max(nested_data, function (d) {
+                return +d.value;
+            })) * 100;
+
+            if (val >= 75){
+                return z(0)
+            }
+            if(val >= 50) {
+                return z(1)
+            }
+            if(val >= 25) {
+                return z(2)
+            }
+            if (25 > val){
+                return z(3)
+            }
         })
 
         .on("mouseover", function(d){
-        tooltip
+            tooltip
             .style("left", d3.event.pageX + 50 + "px")
             .style("top", d3.event.pageY + "px")
             .style("display", "inline-block")
