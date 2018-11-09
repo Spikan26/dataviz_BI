@@ -328,6 +328,44 @@ function check_loaded() {
     }
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function generate_tweet() {
+    var rng_emoji_cpt = d3.randomNormal(2, 1);
+    var rng_emoji = d3.randomUniform(0, 10);
+    var rng_hashtag_cpt = d3.randomNormal(3, 1);
+    var rng_hashtag = d3.randomUniform(0, 10);
+    var rng_caps = d3.randomUniform(0, 1);
+
+    tweet = $("#gen_tweet").val();
+
+    ctw = "";
+    for (var i = 0; i < tweet.length; i++) {
+        c = tweet.charAt(i);
+        if (rng_caps() > 0.65) {
+            c = c.toUpperCase();
+        }
+        ctw += c;
+
+    }
+    tweet = ctw;
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = emoji_data[Math.floor(rng_emoji())].emoji + tweet;
+    }
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = tweet + emoji_data[Math.floor(rng_emoji())].emoji;
+    }
+    tweet = tweet + "<br/>";
+
+    for (var i = 0; i < Math.floor(rng_hashtag_cpt()); i++) {
+        tweet = tweet + hashtag_data[Math.floor(rng_hashtag())].hashtag;
+    }
+
+    return tweet;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////s
+
 $(function () {
     console.log("READY");
 
@@ -409,6 +447,15 @@ $(function () {
     });
 
     setTimeout(check_loaded, 500);
+
+    $('#submit_gen').click(function (e) {
+
+        console.log("GENERATE");
+        var tw = generate_tweet();
+        $("#generated_result").html(tw);
+
+    });
+
 
 
 });
