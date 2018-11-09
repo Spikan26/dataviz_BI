@@ -109,6 +109,8 @@ function horizontal_bar_chart(element, data, property) {
 
     bars.append("rect")
         .attr("class", "bar")
+        .attr("rx", 6)
+        .attr("ry", 6)
         .attr("height", function (d) {
             return 25;
         })
@@ -126,15 +128,6 @@ function horizontal_bar_chart(element, data, property) {
             return d.key;
         });
 
-    bars.append("text")
-        .attr("dx", function (d) {
-                return (width - 70) * (d.value / max) + 14;
-            }
-        )
-        .attr("dy", 18)
-        .text(function (d) {
-            return d.value + " msg";
-        })
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -196,6 +189,8 @@ function bar_chart(element, widthchart, data, property) {
         .enter()
         .append("rect")
         .attr("class", "bar")
+        .attr("rx", 6)
+        .attr("ry", 6)
         .attr("x", function (d) {
             return x(d.key)
         })
