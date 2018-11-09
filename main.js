@@ -5,8 +5,9 @@ var caps_nofilter = undefined;
 var nbtag_nofilter = undefined;
 var hours_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
+
 var loaded = [false, false, false, false, false, false];
-//
+
 function legend(element, keys, z) {
     var legendRectSize = 15;
     var svg = d3.select('#' + element).append('svg')
@@ -52,6 +53,7 @@ function horizontal_bar_chart(element, data, property) {
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 
+
     nested_data = d3.nest()
         .key(function (d) {
             return d[property];
@@ -66,6 +68,7 @@ function horizontal_bar_chart(element, data, property) {
     nested_data.sort(function (a, b) {
         return d3.descending(a.value, b.value)
     });
+
 
     var max = d3.max(nested_data, function (d) {
         return d.value;
@@ -136,11 +139,13 @@ function bar_chart(element, widthchart, data, property) {
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
     console.log("BAR CHART");
 
     nested_data = d3.nest()
         .key(function (d) {
             return d[property];
+
         })
         .rollup(function (d) {
             return d3.sum(d, function (e) {
@@ -240,6 +245,7 @@ function draw_all() {
 
     if (themes.length == 0) {
         console.log("oops, nothing selected");
+
         no_theme("bc_caps");
         no_theme("bc_emoji");
         no_theme("bc_words");
@@ -253,6 +259,7 @@ function draw_all() {
         horizontal_bar_chart("bc_emoji", emoji_data, "emoji");
         horizontal_bar_chart("bc_hashtags", hashtag_data, "hashtag");
         horizontal_bar_chart("bc_words", words_data, "word");
+
     }
 
 }
@@ -331,9 +338,12 @@ $(function () {
             d.nombre = +d.nombre;
             d.theme = +d.theme;
         });
+
         emoji_data_nofilter = [].concat(data);
         loaded[0] = true;
     });
+
+
 
     d3.csv(CSV_tag, function (d) {
         data = d;
@@ -345,6 +355,7 @@ $(function () {
         loaded[1] = true;
     });
 
+
     d3.csv(CSV_word, function (d) {
         data = d;
         data.forEach(function (d) {
@@ -354,6 +365,7 @@ $(function () {
         words_data_nofilter = [].concat(data);
         loaded[2] = true;
     });
+
 
     d3.csv(CSV_caps, function (d) {
         data = d;
@@ -365,6 +377,7 @@ $(function () {
         caps_data_nofilter = [].concat(data);
         loaded[3] = true;
     });
+
 /*
     d3.csv(CSV_nbtag, function (d) {
         data = d;
@@ -391,7 +404,6 @@ $(function () {
     setTimeout(check_loaded, 500);
 
 
+
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
