@@ -45,6 +45,9 @@ function legend(element, keys, z) {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 function horizontal_bar_chart(element, data, property) {
+
+
+
     $("#" + element).html("");
     var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320).attr("x", -50);
     var width = +svg.attr("width") - margin.left - margin.right;
@@ -77,13 +80,14 @@ function horizontal_bar_chart(element, data, property) {
         .paddingInner(0.1);
 
     var x = d3.scaleLinear()
+        .domain(d3.range(data.length))
         .rangeRound([0, width]);
 
     var z = d3.scaleOrdinal()
         .range(["#e7173d", "#e76131", "#e7a534", "#f9e259", "#58ffb6", "#1935ff", "#b710ff"]);
 
 
-    x.domain([0, 150]);
+    x.domain([0, data.length]);
 
     z.domain();
     y.domain(nested_data.map(function (d) {
@@ -109,8 +113,17 @@ function horizontal_bar_chart(element, data, property) {
 
     bars.append("rect")
         .attr("class", "bar")
+
         .attr("rx", 6)
         .attr("ry", 6)
+        .attr("width", 0)
+        .transition()
+        .ease(d3.easeBounceOut)
+        .delay(function(d, i) {
+            return i * 100;
+        })
+        .duration(1500)
+
         .attr("height", function (d) {
             return 25;
         })
@@ -188,6 +201,7 @@ function bar_chart(element, widthchart, data, property) {
         .data(nested_data)
         .enter()
         .append("rect")
+        .transition()
         .attr("class", "bar")
         .attr("rx", 6)
         .attr("ry", 6)
@@ -197,6 +211,11 @@ function bar_chart(element, widthchart, data, property) {
         .attr("y", function (d) {
             return y(d.value)
         })
+        .delay(function(d, i) {
+            return i * 100;
+        })
+        .duration(1000)
+        .ease(d3.easeBounceOut)
         .attr("height", function (d) {
             return height - y(d.value);
         })
