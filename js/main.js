@@ -4,7 +4,7 @@ var words_nofilter = undefined;
 var caps_nofilter = undefined;
 var nbtag_nofilter = undefined;
 var hours_nofilter = undefined;
-var margin = {top: 20, right: 20, bottom: 30, left: 40};
+var margin = {top: 20, right: 20, bottom: 30, left: 60};
 var loaded = [false, false, false, false, false, false];
 //
 function legend(element, keys, z) {
@@ -106,32 +106,35 @@ function horizontal_bar_chart(element, data, property) {
                 .style("left", d3.event.pageX + 50 + "px")
                 .style("top", d3.event.pageY + "px")
                 .style("display", "inline-block")
-                .html((d.key) + "<br>" + (d.value) + " msg");
+                .html((d.value) + " msg");
         })
         .on("mouseout", function(d){ tooltip.style("display", "none");});
 
 
-    bars.append("rect")
+    var bars_rect = bars.append("rect")
         .attr("class", "bar")
 
         .attr("rx", 6)
         .attr("ry", 6)
         .attr("width", 0)
-        .transition()
+        .attr("height", function (d) {
+            return 25;
+        })
+        .attr("width", function (d) {
+            return 0;
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        });
+
+    bars_rect .transition()
         .ease(d3.easeBounceOut)
         .delay(function(d, i) {
             return i * 100;
         })
         .duration(1500)
-
-        .attr("height", function (d) {
-            return 25;
-        })
         .attr("width", function (d) {
             return (width - 70) * (d.value / max);
-        })
-        .style("fill", function (d) {
-            return z(d.key)
         });
 
     bars.append("text")
@@ -197,20 +200,44 @@ function bar_chart(element, widthchart, data, property) {
         return +d.key;
     }));
 
-    g.selectAll(".bar")
+    var bars = g.selectAll(".bar")
         .data(nested_data)
         .enter()
         .append("rect")
-        .transition()
         .attr("class", "bar")
         .attr("rx", 6)
         .attr("ry", 6)
+        .attr("height", function (d) {
+            return 0;
+        })
+        .attr("width", function (d) {
+            return 22;
+        })
+        .style("fill", function (d) {
+            return z(d.key)
+        })
         .attr("x", function (d) {
             return x(d.key)
         })
         .attr("y", function (d) {
             return y(d.value)
         })
+        .on("mouseover", function(d){
+            tooltip
+                .style("left", d3.event.pageX + 50 + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("display", "inline-block");
+                if (property == "percent"){
+                    tooltip.html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
+                } else {
+                    tooltip.html((d.key) + "h<br>" + (d.value) + " msg");
+                }
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");})
+
+
+
+        bars.transition()
         .delay(function(d, i) {
             return i * 100;
         })
@@ -226,14 +253,7 @@ function bar_chart(element, widthchart, data, property) {
             return z(d.key)
         })
 
-        .on("mouseover", function(d){
-        tooltip
-            .style("left", d3.event.pageX + 50 + "px")
-            .style("top", d3.event.pageY + "px")
-            .style("display", "inline-block")
-            .html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
-        })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});
+
 
     g.append("g")
         .attr("class", "axis")
