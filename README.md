@@ -15,5 +15,3 @@ repo github de la Dataviz du site Influenchieurs.fr
     * Pourquoi ne pas faire un gros tuto avec le bouton en bas [J'ai compris] qui ramène sur les barchart avec une ancre ?
     
 - rendre le NoTheme joli (oui car c'est que du texte quoi)
-
-- réduire la taille de la police (surtout sur les axes)

@@ -187,9 +187,9 @@ function bar_chart(element, widthchart, data, property) {
         .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
 
-        x.domain(nested_data.map(function (d) {
-            return +d.key;
-        }));
+    x.domain(nested_data.map(function (d) {
+        return +d.key;
+    }));
 
 
 
@@ -227,17 +227,20 @@ function bar_chart(element, widthchart, data, property) {
                 .style("left", d3.event.pageX + 50 + "px")
                 .style("top", d3.event.pageY + "px")
                 .style("display", "inline-block");
+          
                 if (property == "percent"){
                     tooltip.html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
                 } else {
                     tooltip.html((d.key) + "h<br>" + (d.value) + " msg");
                 }
+
         })
         .on("mouseout", function(d){ tooltip.style("display", "none");})
 
 
 
         bars.transition()
+
         .delay(function(d, i) {
             return i * 100;
         })
@@ -462,18 +465,18 @@ $(function () {
         caps_data_nofilter = [].concat(data);
         loaded[3] = true;
     });
-/*
-    d3.csv(CSV_nbtag, function (d) {
-        data = d;
-        data.forEach(function (d) {
-            d.nombre = +d.nombre;
-            d.nbtag = +d.nbtag;
-            d.theme = +d.theme;
+    /*
+        d3.csv(CSV_nbtag, function (d) {
+            data = d;
+            data.forEach(function (d) {
+                d.nombre = +d.nombre;
+                d.nbtag = +d.nbtag;
+                d.theme = +d.theme;
+            });
+            hashtag_data_nofilter = [].concat(data);
+            loaded[4] = true;
         });
-        hashtag_data_nofilter = [].concat(data);
-        loaded[4] = true;
-    });
-*/
+    */
     d3.csv(CSV_hours, function (d) {
         data = d;
         data.forEach(function (d) {
@@ -499,5 +502,4 @@ $(function () {
 
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
