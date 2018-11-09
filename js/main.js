@@ -6,6 +6,7 @@ var nbtag_nofilter = undefined;
 var hours_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
 var loaded = [false, false, false, false, false, false];
+
 //
 function legend(element, keys, z) {
     var legendRectSize = 15;
@@ -97,14 +98,16 @@ function horizontal_bar_chart(element, data, property) {
         .attr("transform", function (d, i) {
             return "translate(0," + 30 * i + ")";
         })
-        .on("mouseover", function(d){
+        .on("mouseover", function (d) {
             tooltip
                 .style("left", d3.event.pageX + 50 + "px")
                 .style("top", d3.event.pageY + "px")
                 .style("display", "inline-block")
                 .html((d.key) + "<br>" + (d.value) + " msg");
         })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});
+        .on("mouseout", function (d) {
+            tooltip.style("display", "none");
+        });
 
 
     bars.append("rect")
@@ -171,10 +174,9 @@ function bar_chart(element, widthchart, data, property) {
         .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
 
-        x.domain(nested_data.map(function (d) {
-            return +d.key;
-        }));
-
+    x.domain(nested_data.map(function (d) {
+        return +d.key;
+    }));
 
 
     y.domain([0, d3.max(nested_data, function (d) {
@@ -207,14 +209,16 @@ function bar_chart(element, widthchart, data, property) {
             return z(d.key)
         })
 
-        .on("mouseover", function(d){
-        tooltip
-            .style("left", d3.event.pageX + 50 + "px")
-            .style("top", d3.event.pageY + "px")
-            .style("display", "inline-block")
-            .html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
+        .on("mouseover", function (d) {
+            tooltip
+                .style("left", d3.event.pageX + 50 + "px")
+                .style("top", d3.event.pageY + "px")
+                .style("display", "inline-block")
+                .html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
         })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});
+        .on("mouseout", function (d) {
+            tooltip.style("display", "none");
+        });
 
     g.append("g")
         .attr("class", "axis")
@@ -328,6 +332,40 @@ function check_loaded() {
     }
 }
 
+function generate_tweet() {
+    var rng_emoji_cpt = d3.randomNormal(2, 1);
+    var rng_emoji = d3.randomUniform(0, 10);
+    var rng_hashtag_cpt = d3.randomNormal(3, 1);
+    var rng_hashtag = d3.randomUniform(0, 10);
+    var rng_caps = d3.randomUniform(0, 1);
+
+    tweet = $("#gen_tweet").val();
+
+    ctw = "";
+    for (var i = 0; i < tweet.length; i++) {
+        c = tweet.charAt(i);
+        if (rng_caps() > 0.65) {
+            c = c.toUpperCase();
+        }
+        ctw += c;
+
+    }
+    tweet = ctw;
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = emoji_data[Math.floor(rng_emoji())].emoji + tweet;
+    }
+    for (var i = 0; i < Math.floor(rng_emoji_cpt()); i++) {
+        tweet = tweet + emoji_data[Math.floor(rng_emoji())].emoji;
+    }
+    tweet = tweet + "<br/>";
+
+    for (var i = 0; i < Math.floor(rng_hashtag_cpt()); i++) {
+        tweet = tweet + hashtag_data[Math.floor(rng_hashtag())].hashtag;
+    }
+
+    return tweet;
+}
+
 $(function () {
     console.log("READY");
 
@@ -337,7 +375,6 @@ $(function () {
     var CSV_caps = "./csv/caps_distribution.csv";
     //var CSV_nbtag = "./csv/hashtag_count.csv";
     var CSV_hours = "./csv/hours.csv";
-
 
 
     d3.csv(CSV_emoji, function (d) {
@@ -385,18 +422,18 @@ $(function () {
         caps_data_nofilter = [].concat(data);
         loaded[3] = true;
     });
-/*
-    d3.csv(CSV_nbtag, function (d) {
-        data = d;
-        data.forEach(function (d) {
-            d.nombre = +d.nombre;
-            d.nbtag = +d.nbtag;
-            d.theme = +d.theme;
+    /*
+        d3.csv(CSV_nbtag, function (d) {
+            data = d;
+            data.forEach(function (d) {
+                d.nombre = +d.nombre;
+                d.nbtag = +d.nbtag;
+                d.theme = +d.theme;
+            });
+            hashtag_data_nofilter = [].concat(data);
+            loaded[4] = true;
         });
-        hashtag_data_nofilter = [].concat(data);
-        loaded[4] = true;
-    });
-*/
+    */
     d3.csv(CSV_hours, function (d) {
         data = d;
         data.forEach(function (d) {
@@ -410,7 +447,15 @@ $(function () {
 
     setTimeout(check_loaded, 500);
 
-
+    $('#gen_tweet').keypress(function (e) {
+        console.log("KEYPRESS");
+        var key = e.which;
+        if (key == 13) {
+            console.log("GENERATE");
+            var tw = generate_tweet();
+            $("#generated_result").html(tw);
+        }
+    });
 });
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

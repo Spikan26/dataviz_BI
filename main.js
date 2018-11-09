@@ -313,7 +313,8 @@ function check_loaded() {
 
         $('#humour').click(function () {
             draw_all();
-        })
+        });
+
     } else {
         console.log(loaded);
         setTimeout(check_loaded, 500)
