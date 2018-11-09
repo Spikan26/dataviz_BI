@@ -1,6 +1,12 @@
-var data = undefined;
+var emoji_nofilter = undefined;
+var hashtag_nofilter = undefined;
+var words_nofilter = undefined;
+var caps_nofilter = undefined;
+var nbtag_nofilter = undefined;
+var hours_nofilter = undefined;
 var margin = {top: 20, right: 20, bottom: 30, left: 40};
-var data_nofilter = undefined;
+
+var loaded = [false, false, false, false, false, false];
 
 function legend(element, keys, z) {
     var legendRectSize = 15;
@@ -39,38 +45,32 @@ function legend(element, keys, z) {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function horizontal_bar_chart(element, property) {
+function horizontal_bar_chart(element, data, property) {
     $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 300);
+    var svg = d3.select("#" + element).append("svg").attr("width", 600).attr("height", 320).attr("x", -50);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    //var nested_data = [].concat(data);
 
-    var nested_data = d3.nest()
+    nested_data = d3.nest()
         .key(function (d) {
             return d[property];
         })
         .rollup(function (d) {
-            return d.length;
+            return d3.sum(d, function (e) {
+                return e.nombre;
+            })
         })
         .entries(data);
 
-    nested_data = nested_data.sort(function (a, b) {
+    nested_data.sort(function (a, b) {
         return d3.descending(a.value, b.value)
     });
-    console.log(nested_data);
-    //nested_data = data.filter(function(d){
-    //TODO use switches from webpage to filter
-    //return d.theme === "1";
-    //  return d.nathan === "a";
-    //});
 
-    console.log("HORIZONTAL DATA");
-    console.log(nested_data);
-    //console.log(nested_data);
-
+    var max = d3.max(nested_data, function (d) {
+        return d.value;
+    });
 
     var y = d3.scaleBand()
         .rangeRound([height, 0])
@@ -104,57 +104,57 @@ function horizontal_bar_chart(element, property) {
             return 25;
         })
         .attr("width", function (d) {
-            return x(d.value) * 10;
+            return (width - 70) * (d.value / max);
         })
         .style("fill", function (d) {
             return z(d.key)
         });
 
     bars.append("text")
-        .attr("dx" , -25)
+        .attr("dx", -25)
         .attr("dy", 19)
-        .text(function(d){
+        .text(function (d) {
             return d.key;
-        })
+        });
 
     bars.append("text")
-        .attr("dx" , 260)
+        .attr("dx", function (d) {
+                return (width - 70) * (d.value / max) + 14;
+            }
+        )
         .attr("dy", 18)
-        .text(function(d){
-            return d.value+" msg";
+        .text(function (d) {
+            return d.value + " msg";
         })
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-function bar_chart(element, property) {
+function bar_chart(element, widthchart, data, property) {
     $("#" + element).html("");
-    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
+    var svg = d3.select("#" + element).append("svg").attr("width", widthchart).attr("height", 320);
     var width = +svg.attr("width") - margin.left - margin.right;
     var height = +svg.attr("height") - margin.top - margin.bottom;
     var g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    var nested_data = d3.nest()
+    console.log("BAR CHART");
+
+    nested_data = d3.nest()
         .key(function (d) {
-            if(d[property] == 0){
-                d[property] = 0.1;
-            }
-            return Math.ceil(d[property] / 10);
+            return d[property];
         })
         .rollup(function (d) {
-            return {
-                size: d.length, total_heure: d3.sum(d, function (d) {
-                    return d.heure;
-                })
-            };
+            return d3.sum(d, function (e) {
+                return e.nombre;
+            })
         })
         .entries(data);
 
-    nested_data = nested_data.sort(function (a, b) {
+    nested_data.sort(function (a, b) {
         return d3.ascending(+a.key, +b.key)
     });
 
-
+    console.log(nested_data);
 
 
     var x = d3.scaleBand()
@@ -165,24 +165,20 @@ function bar_chart(element, property) {
         .rangeRound([height, 0]);
 
     var z = d3.scaleOrdinal()
-        .range(["#1100fe","#9ec7fe","#9ec7fe","#2f86fd"]);
+        .range(["#1100fe", "#9ec7fe", "#9ec7fe", "#2f86fd"]);
 
-    if (property === "heure") {
-        x.domain([0, d3.max(nested_data.map(function (d) {
-            return +d.key;
-        })) + 1]);
-    } else {
+
         x.domain(nested_data.map(function (d) {
-            return d.key;
+            return +d.key;
         }));
 
-    }
+
 
     y.domain([0, d3.max(nested_data, function (d) {
-        return d.value.size;
+        return +d.value;
     })]);
     z.domain(nested_data.map(function (d) {
-        return d.key;
+        return +d.key;
     }));
 
     g.selectAll(".bar")
@@ -194,10 +190,10 @@ function bar_chart(element, property) {
             return x(d.key)
         })
         .attr("y", function (d) {
-            return y(d.value.size)
+            return y(d.value)
         })
         .attr("height", function (d) {
-            return height - y(d.value.size);
+            return height - y(d.value);
         })
         .attr("width", function (d) {
             return x.bandwidth();
@@ -219,46 +215,185 @@ function bar_chart(element, property) {
 
 }
 
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function no_theme(element) {
+    $("#" + element).html("");
+    var svg = d3.select("#" + element).append("svg").attr("width", 300).attr("height", 300);
+
+    svg.append("text")
+        .attr("x", 5)
+        .attr("y", 150)
+        .text("Sélectionnez un thème pour commencer");
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function draw_all() {
+    emoji_data = filter(emoji_data_nofilter);
+    hashtag_data = filter(hashtag_data_nofilter);
+    words_data = filter(words_data_nofilter);
+    caps_data = filter(caps_data_nofilter);
+    //nbtag_data = filter(nbtag_data_nofilter);
+    hours_data = filter(hours_data_nofilter);
+
+    if (themes.length == 0) {
+        console.log("oops, nothing selected");
+        no_theme("bc_caps");
+        no_theme("bc_emoji");
+        no_theme("bc_words");
+        no_theme("bc_hashtags");
+        no_theme("bc_time");
+
+    } else {
+        console.log(themes);
+        bar_chart("bc_caps", 550, caps_data, "percent");
+        bar_chart("bc_time", 1100, hours_data, "heure");
+        horizontal_bar_chart("bc_emoji", emoji_data, "emoji");
+        horizontal_bar_chart("bc_hashtags", hashtag_data, "hashtag");
+        horizontal_bar_chart("bc_words", words_data, "word");
+    }
+
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function filter(data_nofilter) {
+    themes = [];
+    if ($('[id= "gaming"]').prop("checked") === true) {
+        themes.push(1);
+    }
+    if ($('[id= "beaute"]').prop("checked") === true) {
+        themes.push(2);
+    }
+    if ($('[id= "sport"]').prop("checked") === true) {
+        themes.push(3);
+    }
+    if ($('[id= "food"]').prop("checked") === true) {
+        themes.push(4);
+    }
+    if ($('[id= "humour"]').prop("checked") === true) {
+        themes.push(5);
+    }
+
+    return data_nofilter.filter(function (d) {
+        console.log(d.theme)
+        return themes.includes(d.theme)
+    });
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+function check_loaded() {
+    if (loaded[0] == true && loaded[1] == true && loaded[2] == true && loaded[3] == true && loaded[5] == true) {
+        draw_all();
+        $('#gaming').click(function () {
+            draw_all();
+        })
+
+        $('#beaute').click(function () {
+            draw_all();
+        })
+
+        $('#sport').click(function () {
+            draw_all();
+        })
+
+        $('#food').click(function () {
+            draw_all();
+        })
+
+        $('#humour').click(function () {
+            draw_all();
+        })
+    } else {
+        console.log(loaded);
+        setTimeout(check_loaded, 500)
+    }
+}
 
 $(function () {
     console.log("READY");
 
-    var URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQGWmwy9vIxJDzGg9-DlfvXXwJhZFLSF5toB_RpNeGjUUqWO70o96yUGbrNjcQ2DlJAZrVtOugP7T3v";
-    URL += "/pub?single=true&output=csv";
+    var CSV_emoji = "emojis_freq.csv";
+    var CSV_tag = "hashtags_freq.csv";
+    var CSV_word = "words_freq.csv";
+    var CSV_caps = "caps_distribution.csv";
+    //var CSV_nbtag = "hashtag_count.csv";
+    var CSV_hours = "hours.csv";
 
 
-    d3.csv(URL, function (d) {
+
+    d3.csv(CSV_emoji, function (d) {
         data = d;
         data.forEach(function (d) {
-            d.heure = +d.heure;
-            d.caps = +d.caps;
+            d.nombre = +d.nombre;
+            d.theme = +d.theme;
         });
-        data_nofilter = [].concat(data);
-        console.log(data);
 
-        bar_chart("bcp", "caps");
-        horizontal_bar_chart("bcs", "emoji");
-        //bar_chart("bcw", "heure");
-        //treemap("status");
-
+        emoji_data_nofilter = [].concat(data);
+        loaded[0] = true;
     });
+
+
+    d3.csv(CSV_tag, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.theme = +d.theme;
+        });
+        hashtag_data_nofilter = [].concat(data);
+        loaded[1] = true;
+    });
+
+    d3.csv(CSV_word, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.theme = +d.theme;
+        });
+        words_data_nofilter = [].concat(data);
+        loaded[2] = true;
+    });
+
+    d3.csv(CSV_caps, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.percent = +d.percent;
+            d.theme = +d.theme;
+        });
+        caps_data_nofilter = [].concat(data);
+        loaded[3] = true;
+    });
+
+/*
+    d3.csv(CSV_nbtag, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.nbtag = +d.nbtag;
+            d.theme = +d.theme;
+        });
+        hashtag_data_nofilter = [].concat(data);
+        loaded[4] = true;
+    });
+*/
+    d3.csv(CSV_hours, function (d) {
+        data = d;
+        data.forEach(function (d) {
+            d.nombre = +d.nombre;
+            d.heure = +d.heure;
+            d.theme = +d.theme;
+        });
+        hours_data_nofilter = [].concat(data);
+        loaded[5] = true;
+    });
+
+    setTimeout(check_loaded, 500);
+
+
 });
-///////////////////////////////////////////////////////////////////////////////////////////
-function filter(){
-    if ($('[id= "gaming"]').is(':checked')){
-        console.log('gaming')
-    }
-}
-
-$("#gaming").click(function () {
-
-    filter()
-
-});
-
-$("#chek2").click(function () {
-
-    filter()
-
-});
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
