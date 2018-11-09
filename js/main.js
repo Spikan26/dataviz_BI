@@ -126,15 +126,6 @@ function horizontal_bar_chart(element, data, property) {
             return d.key;
         });
 
-    bars.append("text")
-        .attr("dx", function (d) {
-                return (width - 70) * (d.value / max) + 14;
-            }
-        )
-        .attr("dy", 18)
-        .text(function (d) {
-            return d.value + " msg";
-        })
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
