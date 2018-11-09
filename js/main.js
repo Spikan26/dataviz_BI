@@ -109,6 +109,8 @@ function horizontal_bar_chart(element, data, property) {
 
     bars.append("rect")
         .attr("class", "bar")
+        .attr("rx", 6)
+        .attr("ry", 6)
         .attr("height", function (d) {
             return 25;
         })
@@ -187,6 +189,8 @@ function bar_chart(element, widthchart, data, property) {
         .enter()
         .append("rect")
         .attr("class", "bar")
+        .attr("rx", 6)
+        .attr("ry", 6)
         .attr("x", function (d) {
             return x(d.key)
         })
