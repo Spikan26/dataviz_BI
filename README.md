@@ -4,16 +4,11 @@ repo github de la Dataviz du site Influenchieurs.fr
 
 
 # TODO
-
-- changer l'emplacement des mots sur les Horizontal BarChart (ils se chevauchent)
-    * Tooltip en passant la souris ?
-    * Police plus voyante ?
-
-- faire un loader car le chargement des .csv est long
-
 - animation des barcharts
 
 - ajout des couleurs perso sur les barcharts
+
+- legende sur les axes
 
 - Tuto pour nouveau utilisateur (quand on vient sur le site, on comprend mal ce qu'il faut faire / comment ça marche / ce que ça veut dire)
     * faire une sorte de guide-tunnel, pour qu'on comprennent dès qu'on arrive, quitte à ce que les barchart soit en bas
