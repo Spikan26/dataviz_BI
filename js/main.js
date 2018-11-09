@@ -227,17 +227,20 @@ function bar_chart(element, widthchart, data, property) {
                 .style("left", d3.event.pageX + 50 + "px")
                 .style("top", d3.event.pageY + "px")
                 .style("display", "inline-block");
-            if (property == "percent"){
-                tooltip.html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
-            } else {
-                tooltip.html((d.key) + "h<br>" + (d.value) + " msg");
-            }
+          
+                if (property == "percent"){
+                    tooltip.html((d.key) + " % de majuscule <br>" + (d.value) + " msg");
+                } else {
+                    tooltip.html((d.key) + "h<br>" + (d.value) + " msg");
+                }
+
         })
         .on("mouseout", function(d){ tooltip.style("display", "none");})
 
 
 
-    bars.transition()
+        bars.transition()
+
         .delay(function(d, i) {
             return i * 100;
         })
