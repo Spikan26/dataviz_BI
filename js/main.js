@@ -363,6 +363,11 @@ $(function () {
     d3.csv(CSV_word, function (d) {
         data = d;
         data.forEach(function (d) {
+            d.ok = +d.ok;
+
+            if (d.ok == 0){
+                d = "";
+            }
             d.nombre = +d.nombre;
             d.theme = +d.theme;
         });
